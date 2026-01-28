@@ -98,6 +98,39 @@ run_fixture("mixed", function()
   local result = true
   result = assert_eq(vim.opt.tabstop:get(), 8, "tabstop") and result
   result = assert_eq(vim.opt.expandtab:get(), false, "expandtab") and result
+  result = assert_eq(vim.opt.expandtab:get(), false, "expandtab") and result
+  return result
+end)
+
+-- TEST: Language Specific Settings
+run_fixture("language", function()
+  local result = true
+  
+  -- Global defaults (tabSize 2, insertSpaces false)
+  result = assert_eq(vim.opt.tabstop:get(), 2, "global tabstop") and result
+  result = assert_eq(vim.opt.expandtab:get(), false, "global expandtab") and result
+  
+  -- Simulate entering a Python buffer
+  vim.cmd("enew") -- create new buffer
+  vim.bo.filetype = "python"
+  -- We need to manually trigger the autocmd? or wait?
+  -- nvim -l is synchronous, but autocmds should fire immediately on property change if configured.
+  -- However, since our implementation will likely use "FileType" autocmd, setting filetype should trigger it.
+  
+  result = assert_eq(vim.opt_local.tabstop:get(), 4, "python tabstop") and result
+  result = assert_eq(vim.opt_local.expandtab:get(), true, "python expandtab") and result
+  
+  -- Simulate entering a Lua buffer
+  vim.cmd("enew")
+  vim.bo.filetype = "lua"
+  
+  result = assert_eq(vim.opt_local.tabstop:get(), 3, "lua tabstop") and result
+  -- Lua block didn't specify insertSpaces, so it should inherit global (false)? 
+  -- Or default vim behavior?
+  -- In VSCode, it inherits global. In our implementation, we want it to inherit global.
+  -- Since we set global options, the new buffer inherits them.
+  result = assert_eq(vim.opt_local.expandtab:get(), false, "lua inherit global expandtab") and result
+  
   return result
 end)
 

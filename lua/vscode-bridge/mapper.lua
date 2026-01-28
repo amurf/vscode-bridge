@@ -1,45 +1,45 @@
 local M = {}
 
-function M.apply_settings(settings)
-  if not settings then return end
-
+-- Helper to apply settings to a specific scope (global or local)
+local function apply_core_settings(settings, opts)
   -- Indentation
   if settings["editor.tabSize"] then
-    vim.opt.tabstop = settings["editor.tabSize"]
-    vim.opt.shiftwidth = settings["editor.tabSize"]
+    opts.tabstop = settings["editor.tabSize"]
+    opts.shiftwidth = settings["editor.tabSize"]
   end
 
   if settings["editor.insertSpaces"] ~= nil then
-    vim.opt.expandtab = settings["editor.insertSpaces"]
+    opts.expandtab = settings["editor.insertSpaces"]
   end
 
   -- UI
   if settings["editor.rulers"] then
-    -- Validating it's a list
     if type(settings["editor.rulers"]) == "table" then
-      -- vim.opt.colorcolumn expects string "80,100" or list of numbers
-      -- for local setting we often pass string, but let's try mapping list directly if supported or join
-      vim.opt.colorcolumn = settings["editor.rulers"] 
+      opts.colorcolumn = settings["editor.rulers"]
     end
   end
+  
+  -- Note: wildignore is global only, so we handle it separately or only in global context
+end
 
-  -- Exclusions
+function M.apply_settings(settings)
+  if not settings then return end
+
+  -- 1. Apply Global Settings
+  apply_core_settings(settings, vim.opt)
+
+  -- Exclusions (Global only)
   if settings["files.exclude"] then
     local wildignore = vim.opt.wildignore:get()
     for pattern, excluded in pairs(settings["files.exclude"]) do
       if excluded then
-        -- VSCode glob conversion to Vim wildcard is complex
-        -- For V1, simple cleanups:
-        -- **/node_modules -> **/node_modules/* or similar?
-        -- Vim wildignore usually just needs the name or path
-        -- Let's just append verbatim and see what sticks for common cases
         table.insert(wildignore, pattern)
       end
     end
     vim.opt.wildignore = wildignore
   end
 
-  -- Format on Save
+  -- Format on Save (Global for now, usually configured at root)
   if settings["editor.formatOnSave"] then
     vim.api.nvim_create_autocmd("BufWritePre", {
       pattern = "*",
@@ -48,6 +48,27 @@ function M.apply_settings(settings)
       end,
       group = vim.api.nvim_create_augroup("VSCodeBridgeFormat", { clear = true })
     })
+  end
+
+  -- 2. Language Specific Settings
+  local group = vim.api.nvim_create_augroup("VSCodeBridgeLanguage", { clear = true })
+  
+  for key, value in pairs(settings) do
+    local lang = key:match("^%[(.*)%]$")
+    if lang and type(value) == "table" then
+      -- VSCode language IDs differ slightly from Vim filetypes
+      -- e.g. "javascript" -> "javascript", "python" -> "python"
+      -- We assume direct mapping for now.
+      
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = lang,
+        group = group,
+        callback = function()
+          -- Apply to buffer local options
+          apply_core_settings(value, vim.opt_local)
+        end
+      })
+    end
   end
 end
 

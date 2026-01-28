@@ -2,8 +2,8 @@
 
 Based on the investigation of the current codebase (v0.1), here are the recommended enhancements to bring the plugin closer to a full "VSCode-in-Neovim" experience.
 
-## 1. Language-Specific Settings Support
-**Current State**: The parser flattens settings.json and ignores keys like `"[python]"` or `"[javascript]"`.
+## 1. Language-Specific Settings Support (Implemented)
+**Current State**: Implemented via `mapper.lua`. Supports parsing `"[language]"` blocks and applying buffer-local settings using FileType autocommands.
 
 **Proposal**:
 - Parse `"[language]"` blocks.
