@@ -2,7 +2,6 @@
 
 ![CI Status](https://github.com/amurf/vscode-bridge/actions/workflows/test.yml/badge.svg)
 
-
 **vscode-bridge** is a lightweight Neovim plugin written in Lua that seamlessly bridges Visual Studio Code configurations to your Neovim environment. It automatically detects and applies settings from `.vscode/settings.json` in your project root, ensuring a consistent coding experience across editors.
 
 ## Features
@@ -26,7 +25,7 @@ Install using your favorite package manager.
 
 ```lua
 {
-  "your-username/vscode-bridge", -- Replace with actual repo path
+  "amurf/vscode-bridge", -- Replace with actual repo path
   opts = {},
   config = function()
     require("vscode-bridge").setup()

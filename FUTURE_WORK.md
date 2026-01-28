@@ -14,15 +14,13 @@ Based on the investigation of the current codebase (v0.1), here are the recommen
 **Value**: High. Essential for polyglot repositories (e.g. 2 spaces for JS, 4 for Python).
 
 ## 2. Extensions Recommendations
-**Current State**: `mapper.lua` contains a `check_extensions` function that is currently dead code. `extensions.json` is never loaded.
+**Current State**: Implemented. The plugin checks `.vscode/extensions.json` and uses `vim.notify` to list recommendations. It tracks notifications to avoid spam.
 
 **Proposal**:
-- Update `init.lua` to look for `.vscode/extensions.json`.
-- Parse recommendations array.
-- Warn or Notify the user if recommended extensions are missing (or just list them).
+- (Done) Update `init.lua` to look for `.vscode/extensions.json`.
+- (Done) Parse recommendations array.
+- (Done) Notify the user.
 
-**Complexity**: Low.
-**Value**: Medium. Helpful for project onboarding.
 
 ## 3. Task Runner Integration (tasks.json)
 **Status**: De-scoped / Deferred.
@@ -36,25 +34,23 @@ Based on the investigation of the current codebase (v0.1), here are the recommen
 
 ## 5. Robustness & Globs
 **Current State**:
-- JSON comment stripping uses regex (fragile).
-- Glob conversion (files.exclude -> wildignore) is simplistic.
+- JSON parser uses a custom state machine to strip comments and trailing commas (Robust).
+- Glob conversion (files.exclude -> wildignore) is basic but functional.
 
 **Proposal**:
-- Improve `strip_comments` (maybe a proper lexer state machine as noted in TODOs).
-- Implement a proper Glob-to-Vim-Wildcard converter.
+- (Done) Improve `strip_comments`.
+- (Ongoing) Enhance Glob-to-Vim-Wildcard converter for complex patterns.
 
 **Complexity**: Medium.
 **Value**: Medium. Reliability fix.
 
 ## 6. Live Configuration Reload
-**Current State**: Only reloads on `DirChanged`. Editing `settings.json` directly requires a manual `:e` or restart to pick up changes.
+**Current State**: Implemented. Uses `vim.uv.new_fs_event` to watch `.vscode` directory and reloads on changes.
 
 **Proposal**:
-- Use `vim.uv.new_fs_event` (or `vim.loop`) to watch the `.vscode/settings.json` file.
-- Auto-trigger `load_config` on file write.
+- (Done) Use `vim.uv.new_fs_event`.
+- (Done) Auto-trigger `load_config` on file write.
 
-**Complexity**: Low/Medium.
-**Value**: High. Greatly improves the feedback loop when tweaking settings.
 
 ## 7. VSCode Snippets Support
 **Current State**: Zero support.

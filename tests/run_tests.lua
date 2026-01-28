@@ -144,6 +144,9 @@ run_fixture("extended", function()
 end)
 
 
+-- TEST: Regressions
+print("Running regression tests...")
+dofile("tests/test_regressions.lua")
 -- SUMMARY
 print("====================================")
 print(string.format("Tests Completed: %d Passed, %d Failed", passed, failed))

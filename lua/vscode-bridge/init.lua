@@ -3,6 +3,7 @@ local mapper = require("vscode-bridge.mapper")
 
 local M = {}
 M.config_watcher = nil
+M.last_notifications = {}
 
 local function stop_watcher()
   if M.config_watcher then
@@ -61,7 +62,14 @@ function M.load_config()
   -- Load extensions.json
   local extensions = parser.read_json_file(vscode_dir .. "/extensions.json")
   if extensions and extensions.recommendations then
-    mapper.check_extensions(extensions.recommendations)
+    local recommendations = extensions.recommendations
+    table.sort(recommendations)
+    local key = table.concat(recommendations, ",")
+    
+    if M.last_notifications[vscode_dir] ~= key then
+      mapper.check_extensions(recommendations)
+      M.last_notifications[vscode_dir] = key
+    end
   end
 end
 

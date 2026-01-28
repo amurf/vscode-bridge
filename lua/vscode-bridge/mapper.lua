@@ -86,11 +86,21 @@ function M.apply_settings(settings)
   apply_core_settings(settings, vim.opt)
 
   -- Exclusions (Global only)
+  -- Exclusions (Global only)
   if settings["files.exclude"] then
     local wildignore = vim.opt.wildignore:get()
+    local existing = {}
+    for _, v in ipairs(wildignore) do
+      existing[v] = true
+    end
+
     for pattern, excluded in pairs(settings["files.exclude"]) do
       if excluded then
-        table.insert(wildignore, glob_to_wildcard(pattern))
+        local w = glob_to_wildcard(pattern)
+        if not existing[w] then
+          table.insert(wildignore, w)
+          existing[w] = true
+        end
       end
     end
     vim.opt.wildignore = wildignore
