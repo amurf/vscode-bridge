@@ -135,6 +135,20 @@ run_fixture("language", function()
 end)
 
 
+
+-- TEST: Extended Settings
+run_fixture("extended", function()
+  local result = true
+  result = assert_eq(vim.opt.wrap:get(), true, "wrap") and result
+  result = assert_eq(vim.opt.number:get(), true, "number") and result
+  result = assert_eq(vim.opt.relativenumber:get(), true, "relativenumber") and result
+  result = assert_eq(vim.opt.fileencoding:get(), "latin1", "fileencoding") and result
+  result = assert_eq(vim.opt.fileformat:get(), "dos", "fileformat") and result
+  result = assert_eq(vim.opt.fixendofline:get(), true, "fixendofline") and result
+  return result
+end)
+
+
 -- SUMMARY
 print("====================================")
 print(string.format("Tests Completed: %d Passed, %d Failed", passed, failed))
@@ -145,5 +159,5 @@ if #errors > 0 then
   end
   vim.cmd("cquit 1")
 else
-  vim.cmd("quit")
+  vim.cmd("quitall!")
 end

@@ -1,0 +1,7 @@
+{
+    "editor.wordWrap": "on",
+    "editor.lineNumbers": "relative",
+    "files.encoding": "iso88591",
+    "files.eol": "\r\n",
+    "files.insertFinalNewline": true
+}
