@@ -60,10 +60,10 @@ The plugin currently supports the following standard VSCode settings:
 
 ## Development
 
-Runs tests using a minimal `test.lua` script.
+Runs the test suite using `tests/run_tests.lua`.
 
 ```bash
-nvim --headless -u test.lua
+nvim -l tests/run_tests.lua
 ```
 
 ## License
