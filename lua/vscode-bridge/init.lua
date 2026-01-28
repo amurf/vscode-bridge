@@ -40,9 +40,12 @@ function M.load_config()
   if settings then
     mapper.apply_settings(settings)
     vim.notify("VSCode settings loaded for " .. cwd, vim.log.levels.INFO)
-  else
-    -- Optional: notify that no config was found?
-    -- print("No VSCode config found in " .. cwd)
+  end
+
+  -- Load extensions.json
+  local extensions = parser.read_json_file(vscode_dir .. "/extensions.json")
+  if extensions and extensions.recommendations then
+    mapper.check_extensions(extensions.recommendations)
   end
 end
 

@@ -60,8 +60,7 @@ function M.check_extensions(recommendations)
     msg = msg .. "- " .. ext .. "\n"
   end
   
-  -- Only notify if explicit demand? Or just informational
-  -- vim.notify(msg, vim.log.levels.INFO)
+  vim.notify(msg, vim.log.levels.INFO)
 end
 
 return M
