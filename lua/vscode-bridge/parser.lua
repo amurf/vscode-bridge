@@ -3,21 +3,68 @@ local M = {}
 -- Helper to remove comments from JSONC (simplified)
 -- Removes // style comments and /* */ block comments
 local function strip_comments(str)
-  -- Remove single line // comments (careful not to match inside strings?)
-  -- This is a simple regex approach, might be fragile but good for V1.
-  -- TODO: Proper state machine parser if complex cases fail.
+  local result = {}
+  local len = #str
+  local i = 1
+  local in_string = false
+  local check_escape = false
   
-  -- Remove block comments /* ... */
-  str = str:gsub("/%*.-%*/", "")
+  while i <= len do
+    local char = str:sub(i, i)
+    local next_char = str:sub(i+1, i+1)
+    
+    if in_string then
+      table.insert(result, char)
+      if check_escape then
+        check_escape = false -- Escaped character processed
+      elseif char == "\\" then
+        check_escape = true
+      elseif char == '"' then
+        in_string = false
+      end
+      i = i + 1
+    else
+      if char == '"' then
+        in_string = true
+        table.insert(result, char)
+        i = i + 1
+      elseif char == "/" then
+        if next_char == "/" then
+          -- Single line comment: skip until newline
+          i = i + 2
+          while i <= len and str:sub(i, i) ~= "\n" do
+            i = i + 1
+          end
+          -- Keep the newline mainly for line numbering, but JSON doesn't care
+          -- actually standard JSON shouldn't have newlines in random places, 
+          -- but leaving the newline helps preserve line counts if we care.
+        elseif next_char == "*" then
+          -- Block comment: skip until */
+          i = i + 2
+          while i <= len - 1 do
+            if str:sub(i, i) == "*" and str:sub(i+1, i+1) == "/" then
+              i = i + 2 -- Skip closing */
+              break
+            end
+            i = i + 1
+          end
+        else
+          table.insert(result, char)
+          i = i + 1
+        end
+      else
+        table.insert(result, char)
+        i = i + 1
+      end
+    end
+  end
   
-  -- Remove single line comments // ...
-  str = str:gsub("//[^\n]*", "")
+  local clean = table.concat(result)
   
   -- Remove trailing commas before } or ]
-  -- This handles: { "a": 1, } -> { "a": 1 }
-  str = str:gsub(",(%s*[}%]])", "%1")
+  clean = clean:gsub(",(%s*[}%]])", "%1")
   
-  return str
+  return clean
 end
 
 function M.read_json_file(filepath)

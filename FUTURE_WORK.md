@@ -25,26 +25,14 @@ Based on the investigation of the current codebase (v0.1), here are the recommen
 **Value**: Medium. Helpful for project onboarding.
 
 ## 3. Task Runner Integration (tasks.json)
-**Current State**: Zero support.
+**Status**: De-scoped / Deferred.
 
-**Proposal**:
-- Parse `.vscode/tasks.json`.
-- Create a `:VSCodeTasks` command to list and run tasks.
-- Execute shell commands using `vim.fn.jobstart` or `vim.cmd("term ...")`.
-
-**Complexity**: High. Requires shell handling, output capturing, and potentially problem matchers.
-**Value**: High. Tasks are a core part of VSCode workflows.
+**Reason**: High complexity (shell handling, output capturing, probem matchers). Currently out of scope for the lightweight nature of this plugin.
 
 ## 4. Launch Configurations (launch.json)
-**Current State**: Zero support.
+**Status**: De-scoped / Deferred.
 
-**Proposal**:
-- Parse `.vscode/launch.json`.
-- Convert configurations into nvim-dap formats.
-- Requires nvim-dap as a dependency.
-
-**Complexity**: Very High. Requires deep knowledge of DAP adapters.
-**Value**: High for power users.
+**Reason**: Very High complexity. Requires deep integration with `nvim-dap` adapters and converting complex JSON configurations.
 
 ## 5. Robustness & Globs
 **Current State**:
@@ -57,3 +45,33 @@ Based on the investigation of the current codebase (v0.1), here are the recommen
 
 **Complexity**: Medium.
 **Value**: Medium. Reliability fix.
+
+## 6. Live Configuration Reload
+**Current State**: Only reloads on `DirChanged`. Editing `settings.json` directly requires a manual `:e` or restart to pick up changes.
+
+**Proposal**:
+- Use `vim.uv.new_fs_event` (or `vim.loop`) to watch the `.vscode/settings.json` file.
+- Auto-trigger `load_config` on file write.
+
+**Complexity**: Low/Medium.
+**Value**: High. Greatly improves the feedback loop when tweaking settings.
+
+## 7. VSCode Snippets Support
+**Current State**: Zero support.
+
+**Proposal**:
+- Parse `.vscode/*.code-snippets` files.
+- Convert them to `LuaSnip` or native Neovim snippets (v0.10+).
+
+**Complexity**: Medium.
+**Value**: High. Many teams share project-specific snippets.
+
+## 8. Formatter Control
+**Current State**: blindly calls `vim.lsp.buf.format()` if `editor.formatOnSave` is true.
+
+**Proposal**:
+- Respect `editor.defaultFormatter` if possible (map to specific LSP client?).
+- Check if an LSP is actually attached before formatting to avoid errors.
+
+**Complexity**: Low.
+**Value**: Medium. Avoids errors in non-LSP buffers.

@@ -22,6 +22,22 @@ local function apply_core_settings(settings, opts)
   -- Note: wildignore is global only, so we handle it separately or only in global context
 end
 
+local function glob_to_wildcard(pattern)
+  -- Remove trailing slash (VSCode handles "dist/" as "dist")
+  -- Vim wildignore "dist" handles "dist" file or "dist" dir
+  if pattern:sub(-1) == "/" then
+    pattern = pattern:sub(1, -2)
+  end
+  
+  -- Handle ** (VSCode recursive) -> Vim handles ** mostly same way
+  -- No change needed for ** usually, but let's ensure it's valid.
+  
+  -- If pattern starts with /, remove it for relative consistency?
+  -- VSCode "dist" means relative to root.
+  
+  return pattern
+end
+
 function M.apply_settings(settings)
   if not settings then return end
 
@@ -33,7 +49,7 @@ function M.apply_settings(settings)
     local wildignore = vim.opt.wildignore:get()
     for pattern, excluded in pairs(settings["files.exclude"]) do
       if excluded then
-        table.insert(wildignore, pattern)
+        table.insert(wildignore, glob_to_wildcard(pattern))
       end
     end
     vim.opt.wildignore = wildignore
