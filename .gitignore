@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Vim/Neovim
+*.swp
+*.swo
+*~
+*.sess
+session.vim
+
+# Logs
+*.log
+
+# Lua Language Server
+.luarc.json
+/lua-language-server/
+
+# Tests
+/test_results/
+
+# Dependencies
+/deps/
