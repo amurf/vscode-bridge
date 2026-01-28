@@ -1,6 +1,6 @@
 # VSCode Bridge for Neovim
 
-![CI Status](https://github.com/ash/vscode-bridge/actions/workflows/test.yml/badge.svg)
+![CI Status](https://github.com/amurf/vscode-bridge/actions/workflows/test.yml/badge.svg)
 
 
 **vscode-bridge** is a lightweight Neovim plugin written in Lua that seamlessly bridges Visual Studio Code configurations to your Neovim environment. It automatically detects and applies settings from `.vscode/settings.json` in your project root, ensuring a consistent coding experience across editors.
