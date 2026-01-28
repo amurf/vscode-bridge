@@ -42,18 +42,7 @@ end
 -- =============================================================================
 
 run_test("strip_comments_basic_comments", function()
-  -- We need to expose strip_comments or just test the read_json mechanism if possible?
-  -- parser.strip_comments is local in the file.
-  -- We should temporarily modify parser.lua to export it for testing,
-  -- OR we can test via read_json with a temporary file.
-  
-  -- Let's rely on internal behavior being robust enough to return valid JSON tables.
-  -- But to be precise, we need to test the stripping logic.
-  -- Ideally, `parser.read_json_file` handles the file reading.
-  -- Let's construct file content strings and test the `strip_comments` logic if we can access it,
-  -- or write to temp files.
-  
-  -- Workaround: Write temp file.
+  -- Write temp file.
   local tmp_file = "check_strip.json"
   local content = [[
   {
@@ -104,11 +93,35 @@ run_test("strip_comments_in_strings", function()
   return res
 end)
 
+
+run_test("strip_trailing_comma_in_strings", function()
+  -- Test that trailing comma logic doesn't eat commas inside strings
+  local tmp_file = "check_comma_string.json"
+  -- {"key": "value,}"} -> should remain valid and have comma
+  local content = [[
+  {
+    "key": "value,}"
+  }
+  ]]
+  local f = io.open(tmp_file, "w")
+  f:write(content)
+  f:close()
+  
+  local data = parser.read_json_file(tmp_file)
+  os.remove(tmp_file)
+  
+  if not data then 
+      table.insert(errors, "Failed to parse JSON with comma in string")
+      return false 
+  end
+  
+  return assert_eq(data.key, "value,}", "Comma inside string preserved")
+end)
+
 -- =============================================================================
 -- TEST: Glob to Wildcard Conversion
 -- =============================================================================
 
--- We need to access the local function or just verify via side effects on wildignore.
 -- mapper.glob_to_wildcard is not exported yet. We will verify via mapper.apply_settings for files.exclude.
 
 run_test("glob_conversion_wildignore", function()

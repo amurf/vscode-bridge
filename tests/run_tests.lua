@@ -68,12 +68,7 @@ run_fixture("tabs", function()
   return result
 end)
 
--- TEST: Internal default mechanism for empty config
--- Assuming the bridge doesn't reset to defaults if no config found,
--- we iterate to "empty" to ensure no crash, but we rely on previous state if not reset.
--- Ideally implementation should handle this. For now let's just check it runs without error.
 run_fixture("empty", function()
-  -- If we came from 'tabs' fixture, settings might persist if not cleared.
   -- This test verifies robustness of load_config() with missing .vscode
   return true
 end)
